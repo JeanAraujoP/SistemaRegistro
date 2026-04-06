@@ -289,3 +289,8 @@ td:last-child { text-align: center; width: 60px; }
 #toast.success { background: var(--gray-900); color: var(--white); }
 #toast.error   { background: #BE123C;        color: var(--white); }
 #toast.show    { opacity: 1; transform: translateY(0); }
+
+/* ── ANCHO FIJO PARA LAS CELDAS ── */
+thead th, tbody td { min-width: 130px; }
+thead th:first-child, tbody td:first-child { min-width: 48px; width: 48px; }
+thead th:last-child,  tbody td:last-child  { min-width: 60px;  width: 60px;  }
