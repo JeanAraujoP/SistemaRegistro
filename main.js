@@ -46,9 +46,12 @@ function createEmptyRow() {
     nombreEmpresa: '',
     liderContratacion: '',
     fechaInicio: '',
-    fechaCierre: '',
+    fechaCierreFin: '',
+    fechaCierreMaximo: '',
     numero: '',
-    correo: ''
+    correo: '',
+    estado: '',
+    fechaCierre: ''
   };
   rows.push(newRow);
   saveToStorage();
@@ -105,7 +108,6 @@ function exportData() {
     return;
   }
 
-  // Resetear completamente el estado
   rows = [];
   nextId = 1;
 
@@ -114,11 +116,9 @@ function exportData() {
     localStorage.removeItem('registroNextId');
   } catch (e) {}
 
-  // NO crear fila nueva — dejar tabla vacía en 0
   hideValidationBanner();
   hideLimitBanner();
 
-  // Actualizar DOM manualmente para garantizar 0 registros y 200 espacios
   const tbody = document.getElementById('tableBody');
   if (tbody) tbody.innerHTML = '';
 
@@ -148,7 +148,9 @@ function updateField(id, field, value) {
 
   const input = document.querySelector(`[data-id="${id}"][data-field="${field}"]`);
   if (input) {
-    if (value.trim() !== '') {
+    const isEmpty = value.trim() === '';
+    /* Los select muestran estado con clases igual que los inputs */
+    if (!isEmpty) {
       input.classList.remove('input-error');
       input.classList.add('input-ok');
     } else {
@@ -160,31 +162,36 @@ function updateField(id, field, value) {
 /* ─── Validación ─────────────────────────── */
 function isRowComplete(row) {
   return (
-    row.nListado.trim() !== '' &&
-    row.nombreEmpresa.trim() !== '' &&
-    row.liderContratacion.trim() !== '' &&
-    row.fechaInicio.trim() !== '' &&
-    row.fechaCierre.trim() !== '' &&
-    row.numero.trim() !== '' &&
-    row.correo.trim() !== ''
+    row.nListado.trim()            !== '' &&
+    row.nombreEmpresa.trim()       !== '' &&
+    row.liderContratacion.trim()   !== '' &&
+    row.fechaInicio.trim()         !== '' &&
+    row.fechaCierreFin.trim()      !== '' &&
+    row.fechaCierreMaximo.trim()   !== '' &&
+    row.numero.trim()              !== '' &&
+    row.correo.trim()              !== '' &&
+    row.estado.trim()              !== '' &&
+    row.fechaCierre.trim()         !== ''
   );
 }
 
-function highlightIncompleteRow(id, input) {
+function highlightIncompleteRow(id) {
   const tr = document.querySelector(`tr[data-row-id="${id}"]`);
-  
   if (tr) {
     tr.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }
 
-  if (input) {
-    if (input.value === '') {
-      input.classList.remove('input-ok');
-      input.classList.add('input-error');
-    } else {
-      input.classList.remove('input-error');
-      input.classList.add('input-ok');
-    }
+    /* Marcar en rojo cada campo vacío de esa fila */
+    const fields = tr.querySelectorAll('[data-id]');
+    fields.forEach(el => {
+      const isEmpty = el.value === '' || el.value.trim() === '';
+      if (isEmpty) {
+        el.classList.remove('input-ok');
+        el.classList.add('input-error');
+      } else {
+        el.classList.remove('input-error');
+        el.classList.add('input-ok');
+      }
+    });
   }
 }
 
@@ -205,50 +212,100 @@ function renderTable() {
     const tr = document.createElement('tr');
     tr.setAttribute('data-row-id', row.id);
 
+    /* Opciones del select de Estado */
+    const estadoOptions = ['', 'Activo', 'En Proceso', 'Cerrado', 'Cancelado']
+      .map(opt => {
+        const selected = row.estado === opt ? 'selected' : '';
+        const label    = opt === '' ? 'Seleccionar...' : opt;
+        return `<option value="${opt}" ${selected}>${label}</option>`;
+      })
+      .join('');
+
     tr.innerHTML = `
       <td>${index + 1}</td>
+
+      <!-- N° Listado -->
       <td>
         <input class="cell-input" type="text" placeholder="Ej: 001"
           value="${escapeHtml(row.nListado)}"
           data-id="${row.id}" data-field="nListado" maxlength="20"
           oninput="updateField(${row.id}, 'nListado', this.value)" />
       </td>
+
+      <!-- Nombre Empresa -->
       <td>
-        <input class="cell-input" type="text" placeholder="Nombre de la empre..."
+        <input class="cell-input" type="text" placeholder="Nombre de la empresa"
           value="${escapeHtml(row.nombreEmpresa)}"
           data-id="${row.id}" data-field="nombreEmpresa" maxlength="80"
           oninput="updateField(${row.id}, 'nombreEmpresa', this.value)" />
       </td>
+
+      <!-- Líder de Contratación -->
       <td>
         <input class="cell-input" type="text" placeholder="Nombre del líder"
           value="${escapeHtml(row.liderContratacion)}"
           data-id="${row.id}" data-field="liderContratacion" maxlength="60"
           oninput="updateField(${row.id}, 'liderContratacion', this.value)" />
       </td>
+
+      <!-- Fecha Inicio -->
       <td>
         <input class="cell-input" type="date"
           value="${escapeHtml(row.fechaInicio)}"
           data-id="${row.id}" data-field="fechaInicio"
           onchange="updateField(${row.id}, 'fechaInicio', this.value)" />
       </td>
+
+      <!-- Fecha Cierre Fin (NUEVA) -->
       <td>
         <input class="cell-input" type="date"
-          value="${escapeHtml(row.fechaCierre)}"
-          data-id="${row.id}" data-field="fechaCierre"
-          onchange="updateField(${row.id}, 'fechaCierre', this.value)" />
+          value="${escapeHtml(row.fechaCierreFin)}"
+          data-id="${row.id}" data-field="fechaCierreFin"
+          onchange="updateField(${row.id}, 'fechaCierreFin', this.value)" />
       </td>
+
+      <!-- Fecha Cierre Máximo (NUEVA) -->
+      <td>
+        <input class="cell-input" type="date"
+          value="${escapeHtml(row.fechaCierreMaximo)}"
+          data-id="${row.id}" data-field="fechaCierreMaximo"
+          onchange="updateField(${row.id}, 'fechaCierreMaximo', this.value)" />
+      </td>
+
+      <!-- Número -->
       <td>
         <input class="cell-input" type="tel" placeholder="Teléfono"
           value="${escapeHtml(row.numero)}"
           data-id="${row.id}" data-field="numero" maxlength="20"
           oninput="updateField(${row.id}, 'numero', this.value)" />
       </td>
+
+      <!-- Correo -->
       <td>
         <input class="cell-input" type="email" placeholder="correo@ejemplo"
           value="${escapeHtml(row.correo)}"
           data-id="${row.id}" data-field="correo" maxlength="100"
           oninput="updateField(${row.id}, 'correo', this.value)" />
       </td>
+
+      <!-- Estado (NUEVA) -->
+      <td>
+        <select class="cell-input cell-select"
+          data-id="${row.id}" data-field="estado"
+          onchange="updateField(${row.id}, 'estado', this.value)">
+          ${estadoOptions}
+        </select>
+      </td>
+
+      <!-- Fecha Cierre -->
+      <td>
+        <input class="cell-input" type="date"
+          value="${escapeHtml(row.fechaCierre)}"
+          data-id="${row.id}" data-field="fechaCierre"
+          onchange="updateField(${row.id}, 'fechaCierre', this.value)" />
+      </td>
+
+      <!-- Acción: eliminar -->
       <td>
         <button class="btn-delete" onclick="deleteRow(${row.id})" title="Eliminar fila">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -277,9 +334,9 @@ function updateHeader() {
 
 /* ─── Actualizar pie de tabla ────────────── */
 function updateFooter() {
-  const totalEl = document.getElementById('totalRegistros');
+  const totalEl   = document.getElementById('totalRegistros');
   const espacioEl = document.getElementById('espacioDisponible');
-  if (totalEl) totalEl.textContent = rows.length;
+  if (totalEl)   totalEl.textContent   = rows.length;
   if (espacioEl) espacioEl.textContent = MAX_ROWS - rows.length;
 }
 
@@ -314,7 +371,7 @@ let toastTimeout = null;
 
 function showToast(message, type = 'success') {
   const toast = document.getElementById('toast');
-  const msg = document.getElementById('toastMsg');
+  const msg   = document.getElementById('toastMsg');
   if (!toast || !msg) return;
 
   toast.classList.remove('show', 'success', 'error');
