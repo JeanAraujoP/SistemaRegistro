@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sistema de Registro</title>
+ 
+  <!-- Fuente personalizada desde Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+ 
+  <!-- Hoja de estilos externa -->
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+ 
+<!-- ═══════════════════════════════════════
+     ENCABEZADO SUPERIOR
+     Contiene el título de la app y los
+     botones de "Exportar" y "Agregar Fila"
+════════════════════════════════════════ -->
+<header>
+  <div class="header-left">
+    <h1>Sistema de Registro</h1>
+    <p>Administra tu listado de empresas</p>
+  </div>
+ 
+  <div class="header-actions">
+    <!-- Botón para borrar todos los datos -->
+    <button class="btn btn-outline" onclick="exportData()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"/>
+        <line x1="6"  y1="6" x2="18" y2="18"/>
+      </svg>
+      Borrar Todo
+    </button>
+ 
+    <!-- Botón para agregar una nueva fila a la tabla.
+         El contador entre paréntesis se actualiza automáticamente desde app.js -->
+    <button class="btn btn-primary" id="addBtn" onclick="addRow()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19"/>
+        <line x1="5"  y1="12" x2="19" y2="12"/>
+      </svg>
+      Agregar Fila (<span id="rowCount">0</span>/200)
+    </button>
+  </div>
+</header>
+ 
+ 
+<!-- ═══════════════════════════════════════
+     CONTENIDO PRINCIPAL
+     Aquí vive la tarjeta con la tabla
+════════════════════════════════════════ -->
+<main>
+  <div class="table-card">
+ 
+    <!-- Aviso que aparece cuando se llega al límite de 200 filas.
+         Está oculto por defecto; app.js lo muestra cuando es necesario -->
+    <div class="limit-banner" id="limitBanner">
+       Has alcanzado el límite máximo de 200 registros.
+    </div>
+ 
+    <!-- Aviso de error que aparece cuando el usuario intenta agregar
+         una nueva fila sin haber completado todos los campos de la anterior.
+         Está oculto por defecto; app.js le agrega la clase "visible" -->
+    <div class="validation-banner" id="validationBanner">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="12" y1="8" x2="12" y2="12"/>
+        <line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+      Debes completar todos los campos de la fila actual antes de continuar.
+      Los campos marcados en rojo son obligatorios.
+    </div>
+ 
+    <!-- Contenedor de la tabla con scroll horizontal en pantallas pequeñas -->
+    <div class="table-wrapper">
+      <table id="registroTable">
+ 
+        <!-- Encabezados de columna (fijos, no se editan) -->
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>N° Listado</th>
+            <th>Nombre Empresa</th>
+            <th>Líder de Contratación</th>
+            <th>Fecha Inicio</th>
+            <th>Fecha Cierre Máximo</th>
+            <th>Número</th>
+            <th>Correo</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+ 
+        <!-- Cuerpo de la tabla: las filas se insertan dinámicamente desde app.js -->
+        <tbody id="tableBody">
+        </tbody>
+ 
+      </table>
+    </div>
+ 
+    <!-- Barra inferior con los contadores de registros y espacio disponible.
+         Los valores dentro de <span> se actualizan automáticamente desde app.js -->
+    <div class="table-footer">
+      <div class="footer-stat">Total de registros: <span id="totalRegistros">0</span></div>
+      <div class="footer-stat">Espacio disponible: <span id="espacioDisponible">200</span> filas</div>
+    </div>
+ 
+  </div>
+</main>
+ 
+ 
+<!-- ═══════════════════════════════════════
+     NOTIFICACIÓN EMERGENTE (TOAST)
+     Aparece en la esquina inferior derecha
+     para confirmar o avisar sobre acciones.
+     app.js controla su contenido y visibilidad
+════════════════════════════════════════ -->
+<div id="toast">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+       stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="20 6 9 17 4 12"/>
+  </svg>
+  <span id="toastMsg"></span>
+</div>
+ 
+<!-- Lógica de la aplicación (se carga al final para que el HTML ya exista) -->
+<script src="main.js"></script>
+</body>
+</html>
